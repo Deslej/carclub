@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pl"
+      xmlns:th="https://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout}">
+<head>
+    <!-- Ustawiamy tytuł -->
+    <title th:text="|${car.brand} - CarClub|">Model  - CarClub</title>
+</head>
+<body>
+<div class="container">
+    <main class="main-content" layout:fragment="content">
+        <section class="car">
+            <!-- Podsumowanie -->
+            <div class="car-summary">
+                <!-- Ustawiamy adres i opis plakatu -->
+                <img src="../static/img/poster-placeholder.png"
+                     th:src="${car.poster ne null} ? @{|/img/${car.poster}|} : @{/img/poster-placeholder.png}"
+                     alt="model"
+                     th:alt="${car.brand}"
+                     class="car-summary-cover"
+                />
+                <!-- informacje o samochodzie -->
+                <div class="car-summary-info">
+                    <!-- Ustawiamy model ,marke , krótki opis, rok -->
+                    <h1 class="car-summary-brand" th:text="${car.brand}">Marka</h1>
+                    <p class="car-summary-model" th:text="${car.model}">Model</p>
+                    <p class="car-summary-item" th:text="|Rok: ${car.carYear}|">Rok: 2001</p>
+                    <!-- Ustawiamy link do strony typu aut, np. /gatunek/Sedan -->
+                    <p class="car-summary-item">Gatunek: <a href="#"
+                                                            th:href="@{|/gatunek/${car.genre}|}"
+                                                            th:text="${car.genre}">Sedan</a>
+                    </p>
+                    <p class="car-summary-item" th:text="${car.shortDescription}">
+                        Ale fura!
+                    </p>
+                </div>
+            </div>
+            <!-- Ocena -->
+            <div class="car-rating-container movie-section">
+                <h2 class="car-section-heading">Ocena</h2>
+                <!-- Jeżeli nie oddano żadnego głosu -->
+                <p th:unless="${car.ratingCount}">Brak głosów</p>
+                <!-- Jeżeli oddano głos -->
+                <div th:if="${car.ratingCount}">
+                    <!-- Zaokrąglamy ocenę do 1 miejsca przed i po przecinku -->
+                    <p class="car-rating-value" th:text="${#numbers.formatDecimal(car.avgRating, 1, 1)}">4.0</p>
+                    <p th:text="|Liczba ocen: ${car.ratingCount}|">Liczba ocen: 134</p>
+                </div>
+                <!-- Dodajemy th:action, formularz wyświetlamy tylko zalogowanemu użytkownikowi -->
+                <form action="#" th:action="@{/ocen-auto}" method="post"
+                      sec:authorize="isAuthenticated()"
+                      class="car-rating-form">
+                    <!-- Identyfikator filmu, na który głosujemy-->
+                    <p>Twoja ocena</p>
+                    <input type="hidden" name="carId" th:value="${car.id}">
+                    <div class="car-rating-buttons">
+                        <!-- Generujemy 5 gwiazdek w pętli -->
+                        <button class="car-rating-button"
+                                name="rating"
+                                th:each="i: ${#numbers.sequence(1, 5)}"
+                                th:value="${i}">
+                            <!-- Pełną i pustą gwiazdkę rozróżniamy dodając odpowiednią klasę na podstawie głosu użytkownika -->
+                            <i class="fa-star" th:classappend="${i <= userRating ? 'fa-solid' : 'fa-regular'}"></i>
+                        </button>
+                    </div>
+                </form>
+                <!-- Link do logowania wyświetlamy tylko wtedy, gdy użytkownik nie jest zalogowany -->
+                <p sec:authorize="!isAuthenticated()">
+                    <a href="#" th:href="@{/login}">Zaloguj się</a>, aby oddać głos
+                </p>
+            </div>
+        </section>
+        <!-- trailer -->
+        <section class="car-trailer-container car-section">
+            <h2 class="car-section-heading">Trailer</h2>
+            <!-- Ustawiamy url samochodu z trailerem -->
+            <iframe width="560" height="315" class="car-trailer"
+                    src="https://www.youtube.com/embed/V75dMMIW2B4"
+                    th:src="|https://www.youtube.com/embed/${car.youtubeTrailerId}|"
+                    frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </section>
+        <!-- opis -->
+        <section class="car-section">
+            <h2 class="car-section-heading">Opis</h2>
+            <!-- Ustawiamy pełny opis -->
+            <p th:text="${car.description}">Tu powinien znaleźć się opis samochodu</p>
+        </section>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!-- Dodana przestrzeń nazw th -->
+<html lang="pl"
+      xmlns:th="https://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<body>
+<div class="container">
+    <main class="main-content" layout:fragment="content">
+        <!-- Nagłówek pobieramy z modelu -->
+        <h2 class="list-heading" th:text="${heading}">Promowane samochody / Rodzaje</h2>
+        <!-- Opis pobieramy z modelu -->
+        <p class="list-description" th:text="${description}">Opis sekcji, przykładowo opis kategorii, albo strony głównej</p>
+        <!-- Zostawiamy tylko pierwszy element <li> -->
+        <ul class="car-list" th:remove="all-but-first">
+            <!-- Pętla po wszystkich samochodach z modelu -->
+            <li class="car-list-item" th:each="car: ${cars}">
+                    <!-- Po uruchomieniu aplikacji ścieżka do placeholdera plakatu wygląda nieco inaczej -->
+                    <img src="../static/img/poster-placeholder.png"
+                         th:src="${car.poster ne null} ? @{|/img/${car.poster}|} : @{/img/poster-placeholder.png}"
+                         alt="samochod"
+                         class="car-list-item-poster">
+                </a>
+                <div class="car-list-item-card">
+                    <div class="car-list-item-content">
+                        <h3 class="car-list-item-title">
+                            <!-- Link do strony pojedynczego samochodu typu /auto/5 -->
+                            <a  th:text="${car.brand}">Marka</a>
+                        </h3>
+                        <!-- model -->
+                        <h4 th:text="${car.model}">Model</h4>
+                        <!-- Rok produkcji -->
+                        <p th:text="${car.carYear}">Rocznik</p>
+
+                        <!-- Add Delete button with a form -->
+                        <form th:action="@{|/admin/delete-car/${car.id}|}" method="post">
+                            <button type="submit" style="font-size: larger; color: black; width: 80px;">Usuń</button>
+                        </form>
+                    </div>
+                </div>
+            </li>
+
+        </ul>
+    </main>
+</div>
+</body>
+</html>
